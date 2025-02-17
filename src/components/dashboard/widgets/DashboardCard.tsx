@@ -19,6 +19,8 @@ interface DashboardCardProps {
   onClick?: () => void;
 }
 
+import { useMotionTemplate, useMotionValue } from "framer-motion";
+
 const DashboardCard = ({
   title = "Card Title",
   description = "Card description goes here",
@@ -27,22 +29,42 @@ const DashboardCard = ({
   footer,
   onClick,
 }: DashboardCardProps) => {
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  function handleMouseMove({
+    currentTarget,
+    clientX,
+    clientY,
+  }: React.MouseEvent<HTMLDivElement>) {
+    const { left, top } = currentTarget.getBoundingClientRect();
+    mouseX.set(clientX - left);
+    mouseY.set(clientY - top);
+  }
+
+  const background = useMotionTemplate`radial-gradient(650px circle at ${mouseX}px ${mouseY}px, rgba(34, 197, 94, 0.15), transparent 80%)`;
+
   return (
     <motion.div
       whileHover={{ scale: 1.02 }}
       transition={{ type: "spring", stiffness: 300 }}
-      className="h-full"
+      className="h-full group"
+      onMouseMove={handleMouseMove}
     >
       <Card
         className={cn(
-          "h-full bg-black border-green-500/50 hover:border-green-400 cursor-pointer",
+          "relative h-full bg-black border-green-500/50 hover:border-green-400 cursor-pointer",
           "transition-colors duration-200",
           "hover:shadow-lg hover:shadow-green-500/20",
           className,
         )}
         onClick={onClick}
       >
-        <CardHeader>
+        <motion.div
+          className="pointer-events-none absolute -inset-px rounded-lg opacity-0 transition duration-300 group-hover:opacity-100"
+          style={{ background }}
+        />
+        <CardHeader className="relative z-10">
           <CardTitle className="text-green-400">{title}</CardTitle>
           <CardDescription className="text-green-300/70">
             {description}

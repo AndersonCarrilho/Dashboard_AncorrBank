@@ -9,8 +9,6 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import LoadingOverlay from "./components/LoadingOverlay";
 
 function App() {
-  const { toast } = useToast();
-
   return (
     <ErrorBoundary>
       <AuthProvider>

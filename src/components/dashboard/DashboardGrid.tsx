@@ -43,30 +43,47 @@ const DashboardGrid = ({
 
   const cards = [
     {
+      id: "wallet",
       title: "Wallet Management",
       description: "Generate and check wallet balances",
       icon: <Wallet className="w-8 h-8 text-green-400" />,
-      onClick: () => setShowWalletDialog(true),
     },
     {
+      id: "transactions",
       title: "Transaction Tools",
       description: "Track and generate offline transactions",
       icon: <ArrowUpDown className="w-8 h-8 text-green-400" />,
-      onClick: () => setShowTransactionDialog(true),
     },
     {
+      id: "security",
       title: "Security Features",
       description: "Encrypt and decrypt your data",
       icon: <Shield className="w-8 h-8 text-green-400" />,
-      onClick: () => setShowSecurityDialog(true),
     },
     {
+      id: "admin",
       title: "Administrative Controls",
       description: "Manage user settings and access",
       icon: <Settings className="w-8 h-8 text-green-400" />,
-      onClick: () => setShowAdminDialog(true),
     },
   ];
+
+  const handleCardClick = (id: string) => {
+    switch (id) {
+      case "wallet":
+        setShowWalletDialog(true);
+        break;
+      case "transactions":
+        setShowTransactionDialog(true);
+        break;
+      case "security":
+        setShowSecurityDialog(true);
+        break;
+      case "admin":
+        setShowAdminDialog(true);
+        break;
+    }
+  };
   return (
     <div className="w-full h-full bg-black p-6 space-y-6">
       <motion.div
@@ -84,7 +101,7 @@ const DashboardGrid = ({
             <DashboardCard
               title={card.title}
               description={card.description}
-              onClick={card.onClick}
+              onClick={() => handleCardClick(card.id)}
             >
               <div className="flex flex-col items-center justify-center space-y-4 py-6">
                 {card.icon}

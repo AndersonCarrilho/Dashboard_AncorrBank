@@ -12,13 +12,29 @@ interface LoginFormProps {
   error?: string;
 }
 
+import { useMotionTemplate, useMotionValue } from "framer-motion";
+
 const LoginForm = ({
   onSubmit = () => {},
   isLoading = false,
   error = "",
 }: LoginFormProps) => {
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  function handleMouseMove({
+    currentTarget,
+    clientX,
+    clientY,
+  }: React.MouseEvent<HTMLDivElement>) {
+    const { left, top } = currentTarget.getBoundingClientRect();
+    mouseX.set(clientX - left);
+    mouseY.set(clientY - top);
+  }
+
+  const background = useMotionTemplate`radial-gradient(650px circle at ${mouseX}px ${mouseY}px, rgba(34, 197, 94, 0.15), transparent 80%)`;
+  const [email, setEmail] = React.useState("admin@example.com");
+  const [password, setPassword] = React.useState("300522");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,12 +43,20 @@ const LoginForm = ({
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-black p-4">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(34,197,94,0.1),transparent_50%)]" />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <Card className="w-[400px] border-green-500/50 bg-black">
+        <Card
+          className="relative w-[400px] border-green-500/50 bg-black group"
+          onMouseMove={handleMouseMove}
+        >
+          <motion.div
+            className="pointer-events-none absolute -inset-px rounded-lg opacity-0 transition duration-300 group-hover:opacity-100"
+            style={{ background }}
+          />
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-bold text-green-400">
               Crypto Dashboard Login
