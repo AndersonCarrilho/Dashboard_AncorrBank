@@ -22,9 +22,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const {
           data: { session },
         } = await supabase.auth.getSession();
-        setUser(session?.user ?? null);
+
+        if (session) {
+          setUser(session.user);
+        } else {
+          // Try to refresh the session
+          const {
+            data: { session: refreshedSession },
+          } = await supabase.auth.refreshSession();
+          if (refreshedSession) {
+            setUser(refreshedSession.user);
+          } else {
+            setUser(null);
+          }
+        }
       } catch (error) {
         console.error("Error checking session:", error);
+        setUser(null);
       } finally {
         setLoading(false);
       }
@@ -35,8 +49,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for changes on auth state
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setUser(session?.user ?? null);
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "SIGNED_IN") {
+        setUser(session?.user ?? null);
+      } else if (event === "SIGNED_OUT") {
+        setUser(null);
+      } else if (event === "TOKEN_REFRESHED") {
+        setUser(session?.user ?? null);
+      }
       setLoading(false);
     });
 

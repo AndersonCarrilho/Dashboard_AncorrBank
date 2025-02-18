@@ -12,12 +12,20 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowUpRight, ArrowDownLeft, Clock } from "lucide-react";
 
 export interface Transaction {
-  id: string;
-  type: "send" | "receive" | "pending";
-  amount: string;
-  address: string;
-  timestamp: string;
-  status: "completed" | "pending" | "failed";
+  hash: string;
+  time: string;
+  amount: number;
+  fee: number;
+  inputs: Array<{
+    prev_out: {
+      addr: string;
+      value: number;
+    };
+  }>;
+  out: Array<{
+    addr: string;
+    value: number;
+  }>;
 }
 
 interface TransactionListProps {
@@ -68,7 +76,7 @@ const TransactionList = ({
         <TableBody>
           {transactions.map((tx, index) => (
             <motion.tr
-              key={tx.id}
+              key={tx.hash}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
@@ -76,23 +84,29 @@ const TransactionList = ({
             >
               <TableCell>
                 <div className="flex items-center gap-2">
-                  {getTypeIcon(tx.type)}
-                  <span className="capitalize text-gray-300">{tx.type}</span>
+                  {tx.amount > 0 ? getTypeIcon("receive") : getTypeIcon("send")}
+                  <span className="capitalize text-gray-300">
+                    {tx.amount > 0 ? "receive" : "send"}
+                  </span>
                 </div>
               </TableCell>
               <TableCell className="font-mono text-gray-300">
-                {tx.amount} ETH
+                {Math.abs(tx.amount)} BTC
               </TableCell>
               <TableCell className="font-mono text-gray-300">
-                {tx.address.slice(0, 6)}...{tx.address.slice(-4)}
+                {tx.inputs[0]?.prev_out?.addr
+                  ? `${tx.inputs[0].prev_out.addr.slice(0, 6)}...${tx.inputs[0].prev_out.addr.slice(-4)}`
+                  : "Unknown"}
               </TableCell>
-              <TableCell className="text-gray-300">{tx.timestamp}</TableCell>
+              <TableCell className="text-gray-300">
+                {new Date(tx.time).toLocaleString()}
+              </TableCell>
               <TableCell>
                 <Badge
                   variant="outline"
-                  className={`${getStatusColor(tx.status)} capitalize`}
+                  className="bg-green-500/20 text-green-400 capitalize"
                 >
-                  {tx.status}
+                  confirmed
                 </Badge>
               </TableCell>
             </motion.tr>
@@ -103,31 +117,6 @@ const TransactionList = ({
   );
 };
 
-const defaultTransactions: Transaction[] = [
-  {
-    id: "1",
-    type: "send",
-    amount: "0.5",
-    address: "0x1234567890abcdef1234567890abcdef12345678",
-    timestamp: "2024-03-20 14:30",
-    status: "completed",
-  },
-  {
-    id: "2",
-    type: "receive",
-    amount: "1.2",
-    address: "0xabcdef1234567890abcdef1234567890abcdef12",
-    timestamp: "2024-03-20 13:15",
-    status: "completed",
-  },
-  {
-    id: "3",
-    type: "send",
-    amount: "0.3",
-    address: "0x7890abcdef1234567890abcdef1234567890abcd",
-    timestamp: "2024-03-20 12:45",
-    status: "pending",
-  },
-];
+const defaultTransactions: Transaction[] = [];
 
 export default TransactionList;
